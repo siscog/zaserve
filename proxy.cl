@@ -519,7 +519,7 @@ cached connection = ~s~%" cond cached-connection))
     
 	    ;; content-length is inserted if this is put or post method
 	    ;;    and others if there is a body.
-	    (if* (or (member method '(:put :post) :test #'eq)
+	    (if* (or (member method '(:put :post :patch) :test #'eq)
 		     ;; On PUT or POST we always send a content-length.
 		     ;; For other requests, send content-length if a body
 		     ;; was present.   [rfe15456]
@@ -2861,21 +2861,6 @@ cached connection = ~s~%" cond cached-connection))
 (without-package-locks
 (defmethod make-load-form ((obj mp:process-lock) &optional env)
   (make-load-form-saving-slots obj :environment env))
-
-; this is just temporary until we get a patch for this in uri.fasl
-(defmethod make-load-form ((self net.uri:uri) &optional env)
-  (declare (ignore env))
-  `(make-instance ',(class-name (class-of self))
-     :scheme ,(uri-scheme self)
-     :host ,(uri-host self)
-     :port ,(uri-port self)
-     :path ',(uri-path self)
-     :query ,(uri-query self)
-     :fragment ,(uri-fragment self)
-     :plist ',(uri-plist self)
-     :string ,(net.uri::uri-string self)
-     ; bug is missing ' in parsed-path value
-     :parsed-path ',(net.uri::.uri-parsed-path self)))
 )
 
 (defun save-proxy-cache (filename &key (server *wserver*))
