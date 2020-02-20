@@ -151,10 +151,12 @@
 (defclass computed-content ()
   nil)
 
-(defgeneric get-content-length ((cc computed-content))
-  (:documentation "returns the number of bytes in the content"))
+(defgeneric get-content-length (cc)
+  (:documentation "returns the number of bytes in the content")
+  (:method get-content-length ((cc computed-content))
+    (declare (ignore cc))))
 
-(defgeneric get-content-headers ((cc computed-content) &key protocol headers)
+(defgeneric get-content-headers (cc &key protocol headers)
   (:documentation "takes protocol and headers specified by the caller
 of do-http-request and returns additional content-specific headers to
 be included; can signal errors, but cannot modify the existing
@@ -165,8 +167,10 @@ headers")
   (:method ((cc computed-content) &key protocol headers)
     (declare (ignore protocol headers))))
 
-(defgeneric write-content ((cc computed-content) stream)
-  (:documentation "writes the content to the given stream"))
+(defgeneric write-content (cc stream)
+  (:documentation "writes the content to the given stream")
+  (:method ((cc computed-content) stream)
+    (declare (ignore cc stream))))
 
 
 ;; This subclass of computed-content will send the contents
