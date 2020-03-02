@@ -827,9 +827,12 @@
 			     :element-type
 			     #-(and (not zacl) allegro (version>= 6))
 			     '(unsigned-byte 8))
-	      (let ((size (excl::filesys-size (stream-input-fn p)))
-		    (lastmod (excl::filesys-write-date (stream-input-fn p)))
-		    (guts))
+	      (let* (#+sbcl (stat (sb-posix:stat file))
+		     (size #-sbcl (excl::filesys-size (stream-input-fn p))
+			   #+sbcl (sb-posix:stat-size stat))
+		     (lastmod #-sbcl (excl::filesys-write-date (stream-input-fn p))
+			      #+sbcl (+ zacl::*unix-epoch-universal-time* (sb-posix:stat-mtime stat)))
+		     (guts))
 		(setq guts (make-array size :element-type '(unsigned-byte 8)))
 	      
 		(if* (not (eql size (setq got (read-sequence guts p))))
@@ -1577,10 +1580,12 @@
 	      
     (unwind-protect 
 	(progn
-	  (let ((size (excl::filesys-size (stream-input-fn p)))
-		(lastmod (excl::filesys-write-date 
-			  (stream-input-fn p)))
-		(buffer nil))
+	  (let* (#+sbcl (stat (sb-posix:stat filename))
+		 (size #-sbcl (excl::filesys-size (stream-input-fn p))
+		       #+sbcl (sb-posix:stat-size stat))
+		 (lastmod #-sbcl (excl::filesys-write-date (stream-input-fn p))
+			  #+sbcl (+ zacl::*unix-epoch-universal-time* (sb-posix:stat-mtime stat)))
+		 (buffer nil))
 				
 			
 	    (setf (last-modified ent) lastmod
@@ -2334,8 +2339,9 @@
 		 (if* (null (errorset
 			     (with-open-file (p (multi-item-data item)
 					      :direction :input)
-			       (let* ((size (excl::filesys-size 
-					     (stream-input-fn p)))
+			       (let* ((size #-sbcl (excl::filesys-size 
+						    (stream-input-fn p))
+					    #+sbcl (sb-posix:stat-size (sb-posix:stat (multi-item-data item))))
 				      (contents
 				       (make-array size 
 						   :element-type 
