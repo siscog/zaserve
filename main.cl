@@ -1903,7 +1903,8 @@ by keyword symbols and not by strings"
        (handler-bind
 	   ((stream-error #'(lambda (err)
 			      (let ((stream (stream-error-stream err)))
-				(when (eq stream sock)
+				(when (eq stream #+allegro sock
+						 #-allegro (zacl::real-stream sock))
 				  (return-from process-connection nil))))))
 	 (let ((header-read-timeout (wserver-header-read-timeout *wserver*))
 	       req error-obj error-response (chars-seen (list nil)))
