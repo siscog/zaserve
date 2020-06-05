@@ -153,7 +153,7 @@
 
 (defgeneric get-content-length (cc)
   (:documentation "returns the number of bytes in the content")
-  (:method get-content-length ((cc computed-content))
+  (:method ((cc computed-content))
     (declare (ignore cc))))
 
 (defgeneric get-content-headers (cc &key protocol headers)
