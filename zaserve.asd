@@ -58,6 +58,7 @@ layer (instead of this old acl-compat), is not currently supported on
   (zacl-reader:cl-file "publish")
   (zacl-reader:cl-file "authorize")
   (zacl-reader:cl-file "log" )
+  (zacl-reader:cl-file "cache")
   (zacl-reader:cl-file "client")
   (zacl-reader:cl-file "proxy")
   (zacl-reader:cl-file "cgi")
