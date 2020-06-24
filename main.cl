@@ -1905,7 +1905,21 @@ by keyword symbols and not by strings"
 			      (let ((stream (stream-error-stream err)))
 				(when (eq stream #+allegro sock
 						 #-allegro (zacl::real-stream sock))
-				  (return-from process-connection nil))))))
+				  (return-from process-connection nil)))))
+	    (cl+ssl::ssl-error
+	      ;; SSL errors vastly represent failures in establishing a secure
+	      ;; connection, therefore they can be ignored in this case, since
+	      ;; we are neither interested in establishing unsecure connections,
+	      ;; nor in keeping a worker thread blocked in a debugger.
+	      (lambda (error)
+		(logmess
+		 (format nil "While reading http request~:_ from ~a:~:_ ~a"
+			 (socket:ipaddr-to-dotted
+			  (socket::remote-host sock))
+			 (substitute #\SPACE #\NEWLINE
+				     (princ-to-string error)))
+		 :brief)
+		(return-from process-connection nil))))
 	 (let ((header-read-timeout (wserver-header-read-timeout *wserver*))
 	       req error-obj error-response (chars-seen (list nil)))
             
@@ -1928,28 +1942,29 @@ by keyword symbols and not by strings"
 		    (read-http-request sock chars-seen)))))
 	  
 	     (if* (null req)
-		then			; end of file, means do nothing
-					; (logmess "eof when reading request")
-					; end this connection by closing socket
-					(if* error-obj
-					   then (logmess 
-						 (format nil "While reading http request~:_ from ~a:~:_ ~a" 
-							     (socket:ipaddr-to-dotted 
-							      (socket::remote-host sock))
-							     error-obj)
-						 :brief))
+		then
+		    ;; end of file, means do nothing
+		    ;; (logmess "eof when reading request")
+		    ;; end this connection by closing socket
+		    (if* error-obj
+		       then (logmess 
+			     (format nil "While reading http request~:_ from ~a:~:_ ~a" 
+					 (socket:ipaddr-to-dotted 
+					  (socket::remote-host sock))
+					 error-obj)
+			     :brief))
 
-					; notify the client if it's still listening
-					(if* (car chars-seen)
-					   then (ignore-errors
-						 (let ((code (or error-response *response-bad-request*)))
-						   (format sock "HTTP/1.0 ~d  ~a~aContent-Length: 0~aConnection: close~a~a"
-							   (response-number code)
-							   (response-desc code)
-							   *crlf* *crlf* *crlf* *crlf*))
-						 (force-output sock)))
+		    ;; notify the client if it's still listening
+		    (if* (car chars-seen)
+		       then (ignore-errors
+			     (let ((code (or error-response *response-bad-request*)))
+			       (format sock "HTTP/1.0 ~d  ~a~aContent-Length: 0~aConnection: close~a~a"
+				       (response-number code)
+				       (response-desc code)
+				       *crlf* *crlf* *crlf* *crlf*))
+			     (force-output sock)))
 		   
-					(return-from process-connection nil)
+		    (return-from process-connection nil)
 		else ;; got a request
 		     (setq *worker-request* req) 
 		  
