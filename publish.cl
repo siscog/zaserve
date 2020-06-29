@@ -251,7 +251,8 @@
   ;; used to map specific uri paths to entities
   ;; the table slot holds the hash table that's used
   ()
-  (:default-initargs :info (make-hash-table :test #'equal)))
+  (:default-initargs :info (make-hash-table :test #'equal
+					    #+sbcl :synchronized #+sbcl t)))
 
 ;; Mention class in make-instance after class def to avoid bug24329.
 (defun make-instance-locator-exact+name (name)
@@ -603,7 +604,8 @@
 
 (defun build-mime-types-table ()
   (if* (null *mime-types*)
-     then (setf *mime-types* (make-hash-table :test #'equalp))
+     then (setf *mime-types* (make-hash-table :test #'equalp
+					      #+sbcl :synchronized #+sbcl t))
 	  (dolist (ent *file-type-to-mime-type*)
 	    (dolist (type (cdr ent))
 	      (setf (gethash type *mime-types*) (car ent))))))

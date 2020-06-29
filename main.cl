@@ -535,7 +535,8 @@ died. Use nil to specify no timeout.")
 
    (vhosts
     ;; map names to vhost objects
-    :initform (make-hash-table :test #'equalp)
+    :initform (make-hash-table :test #'equalp
+			       #+sbcl :synchronized #+sbcl t)
     :accessor wserver-vhosts)
    
    (default-vhost

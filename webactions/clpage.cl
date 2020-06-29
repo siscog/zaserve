@@ -913,14 +913,16 @@ v1: 1.13: cosmetic: bump version #; code same as 10.0 initial release."
 		   
 
 
-(defvar *clp-modules* (make-hash-table :test #'equal))
+(defvar *clp-modules* (make-hash-table :test #'equal
+				       #+sbcl :synchronized #+sbcl t))
 
 (defun find-clp-module (modname &key create)
   (let ((mod (gethash modname *clp-modules*)))
     (or mod
 	(if* create
 	   then (setf (gethash modname *clp-modules*)
-		  (make-hash-table :test #'equal))))))
+		  (make-hash-table :test #'equal
+					   #+sbcl :synchronized #+sbcl t))))))
 
 (defun find-clp-module-function (module function)
   ;; get the specified function in the specified module
