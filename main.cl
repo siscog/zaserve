@@ -1904,8 +1904,8 @@ by keyword symbols and not by strings"
        (handler-bind
 	   ((stream-error #'(lambda (err)
 			      (let ((stream (stream-error-stream err)))
-				(when (eq stream #+allegro sock
-						 #-allegro (zacl::real-stream sock))
+				(when (eq stream #-zacl sock
+						 #+zacl (zacl::real-stream sock))
 				  (return-from process-connection nil)))))
 	    (cl+ssl::ssl-error
 	      ;; SSL errors vastly represent failures in establishing a secure
