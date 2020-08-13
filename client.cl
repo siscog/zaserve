@@ -1192,7 +1192,7 @@ headers")
           then (let ((computed-length 0))
                  (dolist (content-piece content)
                    (typecase content-piece
-                     ((array character (*))
+                     (string
                       (if* (null content-length)
                          then (incf computed-length 
                                     (native-string-sizeof 
