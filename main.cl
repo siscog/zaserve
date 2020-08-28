@@ -445,6 +445,9 @@ died. Use nil to specify no timeout.")
 (defvar *not-modified-entity*) ; used to send back not-modified message
 
 (defvar-mp *thread-index*  0)      ; globalcounter to gen process names
+;; SBCL need globals to be of type FIXNUM if we are to use atomic
+;; operations on them hence this declaration
+#+sbcl (declaim (type fixnum *thread-index*))
 
 (defvar *log-wserver-name* nil)
 	
