@@ -84,21 +84,15 @@
 	(output (slot-value p 'excl::output-handle)))
     
     (setq end (or end (length buffer)))
-
-    (if (> end start)
-	(let ((payload (if (stringp buffer)
-			   (babel:string-to-octets buffer :start start
-							  :end end
-							  :encoding (find-external-format
-								     (stream-external-format p)))
-			   (subseq buffer start end))))
-	  ;; write it out with chunking
-	  ;; chunk header
-	  (format output "~x" (length payload))
-	  (write-sequence *binary-crlf* output)
-	  (write-sequence payload output)
-	  (write-sequence *binary-crlf* output)
-	  (force-output output))))
+    
+    (if* (> end start)
+       then ; write it out with chunking
+	    ; chunk header
+	    (format output "~x" (- end start))
+	    (write-sequence *binary-crlf* output)
+	    (write-sequence buffer output :start start :end end)
+	    (write-sequence *binary-crlf* output)
+	    (force-output output)))
   
   end)
 
