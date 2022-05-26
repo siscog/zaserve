@@ -615,14 +615,7 @@
 
 
 (defun buffer-subseq-to-string (buff start end)
-  ;; extract a subsequence of the usb8 buff and return it as a string
-  (let ((str (make-string (- end start))))
-    (do ((i start (1+ i))
-	 (ii 0 (1+ ii)))
-	((>= i end))
-      (setf (schar str ii) 
-	(code-char (aref buff i))))
-    str))
+  (excl:octets-to-string buff :start start :end end))
 
 (defun header-buffer-req-header-value (req header)
   ;; see header-buffer-header-value for what this does.
