@@ -2608,7 +2608,7 @@ by keyword symbols and not by strings"
 	  (dolist (ent (svref ans i))
 	    (push (cons (svref *header-keyword-array* i)
 			(parse-header-value
-			 (buffer-subseq-to-string buffer (car ent) (cdr ent))))
+			 (buffer-subseq-to-string buffer (car ent) (cdr ent) :utf-8)))
 		  headers)))
 	(free-sresource *header-index-sresource* ans))
       

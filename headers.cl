@@ -614,8 +614,8 @@
 		 else (values first-start first-end))))))
 
 
-(defun buffer-subseq-to-string (buff start end)
-  (excl:octets-to-string buff :start start :end end))
+(defun buffer-subseq-to-string (buff start end &optional (external-format :latin1))
+  (octets-to-string buff :start start :end end :external-format external-format))
 
 (defun header-buffer-req-header-value (req header)
   ;; see header-buffer-header-value for what this does.
