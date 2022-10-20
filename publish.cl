@@ -1760,7 +1760,7 @@
 	 )
     (debug-format :info "directory request for ~s" realname)
     
-    ; we can't allow the brower to specify a url with 
+    ; we can't allow the browser to specify a url with 
     ; any ..'s in it as that would allow the browser to 
     ; search outside the tree that's been published
     (if* (or #+mswindows (position #\\ postfix) ; don't allow windows dir sep
@@ -1790,11 +1790,21 @@
       (and (null type)
 	   (entity-compress ent) ; compression allowed
 	   (dolist (ctype (wserver-compression-file-types *wserver*))
-	     (if* (probe-file (astring+ realname "." 
-						   (car ctype)))
-		then ; compressed version exists,
-		     (setq type :file)
-		     (return))))
+	     (let ((realname-compressed (astring+ realname "." 
+						  (car ctype))))
+	       ;; FIXME: aserve assumes that namestrings and native namestrings are the
+	       ;; same which is true on ACL, but not SBCL. Because `realname' is passed to
+	       ;; `probe-file' and other pathname functions, we need to validate that it's
+	       ;; a valid namestring. This means we won't be able to access files with
+	       ;; syntax that collides with the Lisp namestring syntax: ^, [, etc.
+	       (handler-case (parse-namestring realname-compressed)
+		 (error ()
+		   (return-from process-entity-single-directory nil)))
+	       
+	       (if* (probe-file realname-compressed)
+		  then ; compressed version exists,
+		       (setq type :file)
+		       (return)))))
        
       (if* (null type)
 	 then ; not present
